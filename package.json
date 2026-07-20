@@ -1,0 +1,25 @@
+{
+  "name": "simulateur-bulletin",
+  "version": "1.0.0",
+  "description": "Simulateur de Bulletin de Paie et Calcul des Taxes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RAYPOGLMAO/Simulateur-Bulletin.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/RAYPOGLMAO/Simulateur-Bulletin/issues"
+  },
+  "homepage": "https://github.com/RAYPOGLMAO/Simulateur-Bulletin#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mysql2": "^3.23.1"
+  }
+}
