@@ -15,4 +15,3 @@ create table simualtions (
     salary_net DECIMAL(10, 2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
-
