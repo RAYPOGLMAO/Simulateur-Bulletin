@@ -1,0 +1,627 @@
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a class="brand" href="#">
+      <svg class="brand-logo" width="46" height="23" viewBox="0 0 46 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M11.484 12.618C12.6247 12.8307 13.5623 13.401 14.297 14.329C15.0317 15.257 15.399 16.3203 15.399 17.519C15.399 18.6017 15.1283 19.5587 14.587 20.39C14.065 21.202 13.3013 21.84 12.296 22.304C11.2907 22.768 10.1017 23 8.729 23H0V2.75801H8.352C9.72467 2.75801 10.904 2.98034 11.89 3.425C12.8953 3.86967 13.6493 4.48834 14.152 5.28101C14.674 6.07367 14.935 6.97267 14.935 7.97801C14.935 9.15734 14.616 10.1433 13.978 10.936C13.3593 11.7287 12.528 12.2893 11.484 12.618ZM4.06 11.11H7.772C8.73867 11.11 9.483 10.8973 10.005 10.472C10.527 10.0273 10.788 9.39901 10.788 8.58701C10.788 7.77501 10.527 7.14667 10.005 6.702C9.483 6.25734 8.73867 6.035 7.772 6.035H4.06V11.11ZM8.149 19.694C9.135 19.694 9.89867 19.462 10.44 18.998C11.0007 18.534 11.281 17.8767 11.281 17.026C11.281 16.156 10.991 15.4793 10.411 14.996C9.831 14.4933 9.048 14.242 8.062 14.242H4.06V19.694H8.149Z" fill="white"/>
+        <path d="M28.9298 2.75801V6.035H23.5358V23H19.4758V6.035H1.86719V2.75801H28.9298Z" fill="white"/>
+        <path d="M45.7251 23H41.6651L32.4721 9.109V23H28.4121V2.729H32.4721L41.6651 16.649V0H45.7251V23Z" fill="white"/>
+      </svg>
+    </a>
+
+    <div class="view-switcher">
+      <button class="view-tab active" id="tabSimulation" onclick="switchView('simulation')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg>
+        Simulation
+      </button>
+      <button class="view-tab" id="tabHistory" onclick="switchView('history')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 106 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
+        Historique
+      </button>
+    </div>
+
+    <div class="nav-search">
+      <input type="text" id="historySearchInput" placeholder="Rechercher dans l'historique…">
+    </div>
+
+    <div class="nav-auth" id="navAuth">
+      <button class="nav-btn-ghost" id="signInButton" onclick="openAuth('signin')">Se connecter</button>
+      <button class="nav-btn-solid" id="signUpButton" onclick="openAuth('signup')">S'inscrire</button>
+      <button class="account-pill" id="accountPill" onclick="logOut()" title="Cliquer pour se déconnecter">
+        <span class="avatar" id="accountAvatar">A</span>
+        <span id="accountName">Compte</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+
+  <section id="simulationView" class="view active">
+    <div class="page-intro">
+      <h1 style="font-family: 'Poppins';">Simulez votre bulletin de paie</h1>
+    </div>
+
+    <div class="simulator-grid">
+      <div class="panel" id="simulationForm">
+        <div class="panel-title"><span class="step-number">1</span> Informations de simulation</div>
+        <p class="panel-subtitle">Tous les montants sont exprimés en dinars tunisiens, sur une base mensuelle.</p>
+
+        <div class="field">
+          <label for="employeeName">Nom du salarié</label>
+          <input type="text" id="employeeName" placeholder="Oussema Tarhouni">
+        </div>
+
+        <div class="fields-row">
+          <div class="field">
+            <label for="familyStatus">Situation familiale</label>
+            <select id="familyStatus">
+              <option value="celibataire">Célibataire</option>
+              <option value="marie">Marié(e)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="dependentChildren">Enfants à charge</label>
+            <input type="number" id="dependentChildren" min="0" max="4" value="0">
+            <div class="hint">Max 4 enfants</div>
+          </div>
+        </div>
+
+        <div class="section-divider">Rémunération brute</div>
+
+        <div class="field">
+          <label for="baseSalary">Salaire de base brut</label>
+          <input type="number" id="baseSalary" min="0" step="1" placeholder="Ex. 1200" value="1200">
+        </div>
+
+        <div class="fields-row">
+          <div class="field">
+            <label for="taxableBonuses">Primes / indemnités imposables</label>
+            <input type="number" id="taxableBonuses" min="0" step="1" value="0">
+            <div class="hint">Prime de rendement</div>
+          </div>
+          <div class="field">
+            <label for="exemptAllowances">Indemnités non imposables</label>
+            <input type="number" id="exemptAllowances" min="0" step="1" value="0">
+            <div class="hint">Indemnité de transport</div>
+          </div>
+        </div>
+
+        <div class="fields-row">
+          <div class="field">
+            <label for="overtimeHours">Heures supplémentaires</label>
+            <input type="number" id="overtimeHours" min="0" step="0.5" value="0">
+          </div>
+          <div class="field">
+            <label for="overtimeRate">Taux de majoration</label>
+            <select id="overtimeRate">
+              <option value="0.25">25%</option>
+              <option value="0.5">50%</option>
+              <option value="0.75">75%</option>
+              <option value="1">100%</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-divider">Cotisation sociale</div>
+        <div class="field">
+          <label for="cnssRate">Taux CNSS salarié (%)</label>
+          <input type="number" id="cnssRate" min="0" step="0.01" value="9.18">
+          <div class="hint">Taux standard appliqué au régime général tunisien</div>
+        </div>
+
+        <button class="btn-primary" id="calculateButton">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg>
+          Calculer le bulletin
+        </button>
+        <button class="btn-secondary" id="saveSimulationButton" disabled>Enregistrer cette simulation</button>
+      </div>
+
+      <div class="panel" id="payslipPanel">
+        <div class="panel-header-row">
+          <div>
+            <div class="panel-title"><span class="step-number">2</span> Bulletin simplifié</div>
+            <p class="panel-subtitle">Résultat détaillé du calcul.</p>
+          </div>
+        </div>
+        <div id="payslipOutput">
+          <div class="payslip-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg>
+            <p>Renseignez les informations et cliquez sur "Calculer le bulletin" pour afficher le détail.</p>
+          </div>
+        </div>
+        <div class="payslip-actions" id="payslipActions" style="display:none">
+          <button class="btn-icon-small" id="copyNetButton">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copier le net
+          </button>
+          <button class="btn-icon-small" id="printPayslipButton">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+            Imprimer / PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="historyView" class="view">
+    <div class="page-intro">
+      <h1>Historique des simulations</h1>
+      <p>Retrouvez toutes les simulations enregistrées sur cet appareil, recherchez un salarié, reprenez une simulation ou consultez son détail.</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <span class="stat-label">Simulations enregistrées</span>
+        <span class="stat-value" id="statCount">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Salaire net moyen</span>
+        <span class="stat-value" id="statAverage">—</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Salaire net le plus élevé</span>
+        <span class="stat-value" id="statMax">—</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="history-panel-head">
+        <div>
+          <div class="panel-title"><span class="step-number">3</span> Simulations</div>
+          <p class="panel-subtitle" style="margin-bottom:0">Enregistrées localement sur cet appareil.</p>
+        </div>
+        <div class="actions">
+          <button class="btn-icon-small" id="clearHistoryButton">Vider l'historique</button>
+        </div>
+      </div>
+      <div id="historyTableWrapper"></div>
+    </div>
+  </section>
+
+</div>
+
+<div class="modal-backdrop" id="detailModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Détail de la simulation</h3>
+      <button class="modal-close" id="closeDetailModal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="detailModalBody"></div>
+  </div>
+</div>
+
+<div class="auth-backdrop" id="authModal">
+  <div class="auth-card">
+    <button class="auth-close" onclick="closeAuth()">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5L5 15M5 5l10 10"/></svg>
+    </button>
+
+    <div id="authSignInView">
+      <div class="auth-brand">
+        <svg class="brand-logo" width="46" height="23" viewBox="0 0 46 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M11.484 12.618C12.6247 12.8307 13.5623 13.401 14.297 14.329C15.0317 15.257 15.399 16.3203 15.399 17.519C15.399 18.6017 15.1283 19.5587 14.587 20.39C14.065 21.202 13.3013 21.84 12.296 22.304C11.2907 22.768 10.1017 23 8.729 23H0V2.75801H8.352C9.72467 2.75801 10.904 2.98034 11.89 3.425C12.8953 3.86967 13.6493 4.48834 14.152 5.28101C14.674 6.07367 14.935 6.97267 14.935 7.97801C14.935 9.15734 14.616 10.1433 13.978 10.936C13.3593 11.7287 12.528 12.2893 11.484 12.618ZM4.06 11.11H7.772C8.73867 11.11 9.483 10.8973 10.005 10.472C10.527 10.0273 10.788 9.39901 10.788 8.58701C10.788 7.77501 10.527 7.14667 10.005 6.702C9.483 6.25734 8.73867 6.035 7.772 6.035H4.06V11.11ZM8.149 19.694C9.135 19.694 9.89867 19.462 10.44 18.998C11.0007 18.534 11.281 17.8767 11.281 17.026C11.281 16.156 10.991 15.4793 10.411 14.996C9.831 14.4933 9.048 14.242 8.062 14.242H4.06V19.694H8.149Z" fill="white"/>
+          <path d="M28.9298 2.75801V6.035H23.5358V23H19.4758V6.035H1.86719V2.75801H28.9298Z" fill="white"/>
+          <path d="M45.7251 23H41.6651L32.4721 9.109V23H28.4121V2.729H32.4721L41.6651 16.649V0H45.7251V23Z" fill="white"/>
+        </svg>
+      </div>
+      <div class="auth-title">Content de vous revoir</div>
+      <div class="auth-subtitle">Connectez-vous pour synchroniser vos simulations et accéder à votre historique partout.</div>
+      <div class="auth-field-group">
+        <div class="auth-field">
+          <label>Email</label>
+          <input type="email" id="signInEmail" placeholder="contact@expertcomputer.tn" autocomplete="email">
+        </div>
+        <div class="auth-field">
+          <label>Mot de passe</label>
+          <div class="auth-input-wrap">
+            <input type="password" id="signInPassword" placeholder="••••••••">
+            <button class="auth-eye" type="button" onclick="togglePasswordField('signInPassword', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <button class="auth-submit" onclick="loginWith('email')">Se connecter</button>
+      <p class="auth-switch">Pas encore de compte ? <a href="#" onclick="switchAuthView('signup');return false;">Créer un compte</a></p>
+    </div>
+
+    <div id="authSignUpView" style="display:none">
+      <div class="auth-brand">
+        <svg class="brand-logo" width="46" height="23" viewBox="0 0 46 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M11.484 12.618C12.6247 12.8307 13.5623 13.401 14.297 14.329C15.0317 15.257 15.399 16.3203 15.399 17.519C15.399 18.6017 15.1283 19.5587 14.587 20.39C14.065 21.202 13.3013 21.84 12.296 22.304C11.2907 22.768 10.1017 23 8.729 23H0V2.75801H8.352C9.72467 2.75801 10.904 2.98034 11.89 3.425C12.8953 3.86967 13.6493 4.48834 14.152 5.28101C14.674 6.07367 14.935 6.97267 14.935 7.97801C14.935 9.15734 14.616 10.1433 13.978 10.936C13.3593 11.7287 12.528 12.2893 11.484 12.618ZM4.06 11.11H7.772C8.73867 11.11 9.483 10.8973 10.005 10.472C10.527 10.0273 10.788 9.39901 10.788 8.58701C10.788 7.77501 10.527 7.14667 10.005 6.702C9.483 6.25734 8.73867 6.035 7.772 6.035H4.06V11.11ZM8.149 19.694C9.135 19.694 9.89867 19.462 10.44 18.998C11.0007 18.534 11.281 17.8767 11.281 17.026C11.281 16.156 10.991 15.4793 10.411 14.996C9.831 14.4933 9.048 14.242 8.062 14.242H4.06V19.694H8.149Z" fill="white"/>
+          <path d="M28.9298 2.75801V6.035H23.5358V23H19.4758V6.035H1.86719V2.75801H28.9298Z" fill="white"/>
+          <path d="M45.7251 23H41.6651L32.4721 9.109V23H28.4121V2.729H32.4721L41.6651 16.649V0H45.7251V23Z" fill="white"/>
+        </svg>
+      </div>
+      <div class="auth-title">Créer votre compte</div>
+      <div class="auth-subtitle">Gratuit et sans engagement, pour garder vos simulations en sécurité.</div>
+
+      <div class="avatar-upload-row">
+        <button type="button" class="avatar-upload-circle" id="avatarUploadButton" title="Ajouter une photo de profil">
+          <img id="avatarPreviewImage" src="" alt="" style="display:none">
+          <svg id="avatarPlaceholderIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
+          <span class="avatar-upload-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </span>
+        </button>
+        <input type="file" id="avatarFileInput" accept="image/*" hidden>
+        <div class="avatar-upload-text">
+          <span>Photo de profil</span>
+          <small>PNG ou JPG, 5 Mo maximum</small>
+        </div>
+      </div>
+
+      <div class="auth-field-group">
+        <div class="auth-fields-row">
+          <div class="auth-field"><label>Prénom</label><input type="text" placeholder="Ahmed"></div>
+          <div class="auth-field"><label>Nom</label><input type="text" placeholder="Ben Salah"></div>
+        </div>
+        <div class="auth-field"><label>Email</label><input type="email" placeholder="vous@exemple.com"></div>
+        <div class="auth-field">
+          <label>Mot de passe</label>
+          <div class="auth-input-wrap">
+            <input type="password" id="signUpPassword" placeholder="8 caractères minimum">
+            <button class="auth-eye" type="button" onclick="togglePasswordField('signUpPassword', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <button class="auth-submit" onclick="loginWith('register')">Créer mon compte</button>
+      <p class="auth-switch">Déjà inscrit ? <a href="#" onclick="switchAuthView('signin');return false;">Se connecter</a></p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="notificationToast"></div>
+
+<script>
+const byId = id => document.getElementById(id);
+const formatDT = n => n.toLocaleString('fr-FR', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + ' DT';
+
+function showToast(message) {
+  const toast = byId('notificationToast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+function switchView(viewName) {
+  const goingToHistory = viewName === 'history';
+  byId('simulationView').classList.toggle('active', !goingToHistory);
+  byId('historyView').classList.toggle('active', goingToHistory);
+  byId('tabSimulation').classList.toggle('active', !goingToHistory);
+  byId('tabHistory').classList.toggle('active', goingToHistory);
+  if (goingToHistory) renderHistory(byId('historySearchInput').value.trim());
+}
+
+byId('historySearchInput').addEventListener('input', e => {
+  if (!byId('historyView').classList.contains('active')) switchView('history');
+  renderHistory(e.target.value.trim());
+});
+
+function computePayslip(input) {
+  const {
+    baseSalary, taxableBonuses, exemptAllowances, overtimeHours, overtimeRate,
+    dependentChildren, familyStatus, cnssRate
+  } = input;
+
+  const LEGAL_MONTHLY_HOURS = 173.33;
+  const hourlyRate = baseSalary / LEGAL_MONTHLY_HOURS;
+  const overtimeAmount = overtimeHours * hourlyRate * (1 + overtimeRate);
+
+  const cnssBase = baseSalary + taxableBonuses + overtimeAmount;
+  const cnssContribution = cnssBase * (cnssRate / 100);
+
+  const taxableGross = cnssBase - cnssContribution;
+
+  const FLAT_DEDUCTION_RATE = 0.10;
+  const FLAT_DEDUCTION_MONTHLY_CAP = 2000 / 12;
+  const flatDeduction = Math.min(taxableGross * FLAT_DEDUCTION_RATE, FLAT_DEDUCTION_MONTHLY_CAP);
+
+  const HEAD_OF_FAMILY_MONTHLY = 300 / 12;
+  const PER_CHILD_MONTHLY = 100 / 12;
+  const countedChildren = Math.min(dependentChildren, 4);
+  const familyDeduction =
+    (familyStatus === 'marie' ? HEAD_OF_FAMILY_MONTHLY : 0) + countedChildren * PER_CHILD_MONTHLY;
+
+  const monthlyTaxableBase = Math.max(0, taxableGross - flatDeduction - familyDeduction);
+  const yearlyTaxableBase = monthlyTaxableBase * 12;
+
+  const taxBrackets = [
+    { min: 0,     max: 5000,     rate: 0    },
+    { min: 5000,  max: 10000,    rate: 0.26 },
+    { min: 10000, max: 20000,    rate: 0.28 },
+    { min: 20000, max: 30000,    rate: 0.32 },
+    { min: 30000, max: 50000,    rate: 0.35 },
+    { min: 50000, max: Infinity, rate: 0.40 }
+  ];
+  let yearlyIncomeTax = 0;
+  for (const bracket of taxBrackets) {
+    if (yearlyTaxableBase > bracket.min) {
+      const portionInBracket = Math.min(yearlyTaxableBase, bracket.max) - bracket.min;
+      yearlyIncomeTax += portionInBracket * bracket.rate;
+    }
+  }
+  const monthlyIncomeTax = yearlyIncomeTax / 12;
+
+  const SOLIDARITY_CONTRIBUTION_RATE = 0.01;
+  const solidarityContribution = monthlyIncomeTax > 0 ? monthlyTaxableBase * SOLIDARITY_CONTRIBUTION_RATE : 0;
+
+  const grossTotal = baseSalary + taxableBonuses + overtimeAmount + exemptAllowances;
+  const totalDeductions = cnssContribution + monthlyIncomeTax + solidarityContribution;
+  const netSalary = grossTotal - cnssContribution - monthlyIncomeTax - solidarityContribution;
+
+  return {
+    hourlyRate, overtimeAmount, cnssBase, cnssContribution, taxableGross, flatDeduction,
+    familyDeduction, monthlyTaxableBase, yearlyTaxableBase,
+    yearlyIncomeTax, monthlyIncomeTax, solidarityContribution, grossTotal, totalDeductions, netSalary
+  };
+}
+
+function readFormInputs() {
+  return {
+    employeeName: byId('employeeName').value.trim() || 'Salarié(e)',
+    familyStatus: byId('familyStatus').value,
+    dependentChildren: parseInt(byId('dependentChildren').value) || 0,
+    baseSalary: parseFloat(byId('baseSalary').value) || 0,
+    taxableBonuses: parseFloat(byId('taxableBonuses').value) || 0,
+    exemptAllowances: parseFloat(byId('exemptAllowances').value) || 0,
+    overtimeHours: parseFloat(byId('overtimeHours').value) || 0,
+    overtimeRate: parseFloat(byId('overtimeRate').value) || 0,
+    cnssRate: parseFloat(byId('cnssRate').value) || 0
+  };
+}
+
+function applyInputsToForm(input) {
+  byId('employeeName').value = input.employeeName === 'Salarié(e)' ? '' : input.employeeName;
+  byId('familyStatus').value = input.familyStatus;
+  byId('dependentChildren').value = input.dependentChildren;
+  byId('baseSalary').value = input.baseSalary;
+  byId('taxableBonuses').value = input.taxableBonuses;
+  byId('exemptAllowances').value = input.exemptAllowances;
+  byId('overtimeHours').value = input.overtimeHours;
+  byId('overtimeRate').value = input.overtimeRate;
+  byId('cnssRate').value = input.cnssRate;
+}
+
+function renderPayslip(input, result) {
+  return `
+    <div class="payslip-tag">Bulletin de <b>${input.employeeName}</b> · ${new Date().toLocaleDateString('fr-FR')}</div>
+
+    <div class="payslip-line"><span class="label">Salaire de base</span><span class="amount">${formatDT(input.baseSalary)}</span></div>
+    <div class="payslip-line"><span class="label">Primes / indemnités imposables</span><span class="amount">${formatDT(input.taxableBonuses)}</span></div>
+    <div class="payslip-line"><span class="label">Heures supplémentaires<small>${input.overtimeHours} h à ${(input.overtimeRate*100).toFixed(0)}%</small></span><span class="amount">${formatDT(result.overtimeAmount)}</span></div>
+    <div class="payslip-line"><span class="label">Indemnités non imposables</span><span class="amount">${formatDT(input.exemptAllowances)}</span></div>
+    <div class="payslip-line grand-total"><span class="label">Salaire brut total</span><span class="amount">${formatDT(result.grossTotal)}</span></div>
+
+    <div class="section-divider">Retenues</div>
+    <div class="payslip-line deduction"><span class="label">Cotisation CNSS<small>${input.cnssRate}% de ${formatDT(result.cnssBase)}</small></span><span class="amount">− ${formatDT(result.cnssContribution)}</span></div>
+    <div class="payslip-line"><span class="label">Abattement forfaitaire (frais pro.)</span><span class="amount">− ${formatDT(result.flatDeduction)}</span></div>
+    <div class="payslip-line"><span class="label">Déductions familiales<small>${input.familyStatus === 'marie' ? 'Chef de famille + ' : ''}${Math.min(input.dependentChildren,4)} enfant(s)</small></span><span class="amount">− ${formatDT(result.familyDeduction)}</span></div>
+    <div class="payslip-line"><span class="label">Base imposable mensuelle</span><span class="amount">${formatDT(result.monthlyTaxableBase)}</span></div>
+    <div class="payslip-line deduction"><span class="label">Impôt sur le revenu (IRPP)<small>Barème progressif annualisé</small></span><span class="amount">− ${formatDT(result.monthlyIncomeTax)}</span></div>
+    <div class="payslip-line deduction"><span class="label">Contribution sociale de solidarité (CSS)</span><span class="amount">− ${formatDT(result.solidarityContribution)}</span></div>
+
+    <div class="payslip-line grand-total"><span class="label">Salaire net à payer</span><span class="amount">${formatDT(result.netSalary)}</span></div>
+  `;
+}
+
+let lastComputedInput = null;
+let lastComputedResult = null;
+
+byId('calculateButton').addEventListener('click', () => {
+  const input = readFormInputs();
+  if (input.baseSalary <= 0) { showToast('Veuillez saisir un salaire de base valide.'); return; }
+  const result = computePayslip(input);
+  byId('payslipOutput').innerHTML = renderPayslip(input, result);
+  byId('payslipActions').style.display = 'flex';
+  lastComputedInput = input;
+  lastComputedResult = result;
+  byId('saveSimulationButton').disabled = false;
+});
+
+byId('copyNetButton').addEventListener('click', async () => {
+  if (!lastComputedResult) return;
+  try {
+    await navigator.clipboard.writeText(formatDT(lastComputedResult.netSalary));
+    showToast('Salaire net copié dans le presse-papiers.');
+  } catch {
+    showToast("Impossible de copier automatiquement.");
+  }
+});
+
+byId('printPayslipButton').addEventListener('click', () => window.print());
+
+const HISTORY_STORAGE_KEY = 'paiesim_historique';
+
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+function persistHistory(list) { localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(list)); }
+
+function updateHistoryStats(list) {
+  byId('statCount').textContent = list.length;
+  if (!list.length) {
+    byId('statAverage').textContent = '—';
+    byId('statMax').textContent = '—';
+    return;
+  }
+  const netValues = list.map(item => item.result.netSalary ?? item.result.net ?? 0);
+  const average = netValues.reduce((sum, value) => sum + value, 0) / netValues.length;
+  const max = Math.max(...netValues);
+  byId('statAverage').textContent = formatDT(average);
+  byId('statMax').textContent = formatDT(max);
+}
+
+function renderHistory(searchTerm = '') {
+  const fullList = loadHistory();
+  updateHistoryStats(fullList);
+
+  const filteredList = searchTerm
+    ? fullList.filter(item => item.input.employeeName.toLowerCase().includes(searchTerm.toLowerCase()))
+    : fullList;
+
+  const wrapper = byId('historyTableWrapper');
+  if (!fullList.length) {
+    wrapper.innerHTML = `<div class="empty-state">Aucune simulation enregistrée pour le moment.</div>`;
+    return;
+  }
+  if (!filteredList.length) {
+    wrapper.innerHTML = `<div class="empty-state">Aucun résultat pour « ${searchTerm} ».</div>`;
+    return;
+  }
+
+  const rows = filteredList.slice().reverse().map(item => {
+    const net = item.result.netSalary ?? item.result.net ?? 0;
+    const gross = item.result.grossTotal ?? item.result.brutTotal ?? 0;
+    return `
+      <tr>
+        <td>${item.date}</td>
+        <td>${item.input.employeeName}</td>
+        <td class="cell-brut">${formatDT(gross)}</td>
+        <td class="cell-net">${formatDT(net)}</td>
+        <td>
+          <div class="row-actions">
+            <button class="icon-btn" data-view="${item.id}" title="Voir le détail">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+            <button class="icon-btn" data-reuse="${item.id}" title="Reprendre cette simulation">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 106 5.3L3 8"/></svg>
+            </button>
+            <button class="icon-btn danger" data-delete="${item.id}" title="Supprimer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+            </button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+
+  wrapper.innerHTML = `
+    <table>
+      <thead><tr><th>Date</th><th>Salarié</th><th>Brut</th><th>Net</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+
+  wrapper.querySelectorAll('[data-view]').forEach(btn => btn.addEventListener('click', () => openHistoryDetail(btn.dataset.view)));
+  wrapper.querySelectorAll('[data-reuse]').forEach(btn => btn.addEventListener('click', () => reuseHistoryItem(btn.dataset.reuse)));
+  wrapper.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', () => deleteHistoryItem(btn.dataset.delete)));
+}
+
+function openHistoryDetail(id) {
+  const item = loadHistory().find(entry => entry.id === id);
+  if (!item) return;
+  byId('detailModalBody').innerHTML = renderPayslip(item.input, item.result);
+  byId('detailModal').classList.add('show');
+}
+byId('closeDetailModal').addEventListener('click', () => byId('detailModal').classList.remove('show'));
+byId('detailModal').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('show'); });
+
+function reuseHistoryItem(id) {
+  const item = loadHistory().find(entry => entry.id === id);
+  if (!item) return;
+  applyInputsToForm(item.input);
+  switchView('simulation');
+  showToast('Simulation rechargée dans le formulaire.');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function deleteHistoryItem(id) {
+  const remaining = loadHistory().filter(entry => entry.id !== id);
+  persistHistory(remaining);
+  renderHistory(byId('historySearchInput').value.trim());
+  showToast('Simulation supprimée.');
+}
+
+byId('clearHistoryButton').addEventListener('click', () => {
+  if (!loadHistory().length) return;
+  if (confirm("Vider tout l'historique des simulations ?")) {
+    persistHistory([]);
+    renderHistory();
+    showToast('Historique vidé.');
+  }
+});
+
+byId('saveSimulationButton').addEventListener('click', () => {
+  if (!lastComputedInput || !lastComputedResult) return;
+  const list = loadHistory();
+  list.push({
+    id: Date.now().toString(36),
+    date: new Date().toLocaleString('fr-FR'),
+    input: lastComputedInput,
+    result: lastComputedResult
+  });
+  persistHistory(list);
+  renderHistory(byId('historySearchInput').value.trim());
+  showToast('Simulation enregistrée dans l\'historique.');
+});
+
+let uploadedAvatarDataUrl = null;
+
+byId('avatarUploadButton').addEventListener('click', () => byId('avatarFileInput').click());
+byId('avatarFileInput').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { showToast('Merci de choisir un fichier image.'); return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    uploadedAvatarDataUrl = reader.result;
+    byId('avatarPreviewImage').src = uploadedAvatarDataUrl;
+    byId('avatarPreviewImage').style.display = 'block';
+    byId('avatarPlaceholderIcon').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+});
+
+let isSignedIn = false;
+
+function openAuth(view) {
+  switchAuthView(view);
+  byId('authModal').classList.add('show');
+}
+function closeAuth() { byId('authModal').classList.remove('show'); }
+function switchAuthView(view) {
+  byId('authSignInView').style.display = view === 'signin' ? 'block' : 'none';
+  byId('authSignUpView').style.display = view === 'signup' ? 'block' : 'none';
+}
+function togglePasswordField(inputId, button) {
+  const input = byId(inputId);
+  input.type = input.type === 'password' ? 'text' : 'password';
+  button.style.color = input.type === 'text' ? 'var(--accent)' : '';
+}
+function loginWith(provider) {
+  isSignedIn = true;
+  closeAuth();
+  byId('signInButton').style.display = 'none';
+  byId('signUpButton').style.display = 'none';
+  byId('accountPill').style.display = 'flex';
+  const email = byId('signInEmail').value.trim();
+  const initial = email ? email[0].toUpperCase() : 'A';
+  if (uploadedAvatarDataUrl) {
+    byId('accountAvatar').style.backgroundImage = `url(${uploadedAvatarDataUrl})`;
+    byId('accountAvatar').style.backgroundSize = 'cover';
+    byId('accountAvatar').style.backgroundPosition = 'center';
+    byId('accountAvatar').textContent = '';
+  } else {
+    byId('accountAvatar').textContent = initial;
+  }
+  byId('accountName').textContent = email || 'Mon compte';
+  showToast('Connexion réussie.');
+}
+function logOut() {
+  isSignedIn = false;
+  byId('signInButton').style.display = '';
+  byId('signUpButton').style.display = '';
+  byId('accountPill').style.display = 'none';
+  showToast('Vous êtes déconnecté.');
+}
+byId('authModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAuth(); });
+
+renderHistory();
+</script>
+<router-outlet />
