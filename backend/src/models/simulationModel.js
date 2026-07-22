@@ -1,20 +1,21 @@
 const pool = require("../config/database");
 
-async function createSimulation(employeeName, data) {
+async function createSimulation(userId, employeeName, data) {
   const sql = `
-    INSERT INTO simulations (employee_name, data)
-    VALUES (?, CAST(? AS JSON))
+    INSERT INTO simulations (user_id, employee_name, data)
+    VALUES (?, ?, CAST(? AS JSON))
   `;
-  const [result] = await pool.execute(sql, [employeeName, JSON.stringify(data)]);
+  const [result] = await pool.execute(sql, [userId || null, employeeName, JSON.stringify(data)]);
   return result.insertId;
 }
 
-async function getAllSimulations() {
+async function getAllSimulations(userId) {
   const [rows] = await pool.execute(
-    "SELECT id, employee_name, data, created_at FROM simulations ORDER BY created_at DESC"
+    "SELECT id, employee_name, data, created_at FROM simulations WHERE user_id = ? ORDER BY created_at DESC",
+    [userId]
   );
   return rows.map(row => {
-    const data = typeof row.data === 'string' ? JSON.parse(row.data) : row.data;
+    const data = typeof row.data === "string" ? JSON.parse(row.data) : row.data;
     return {
       id: row.id,
       employee_name: row.employee_name,
@@ -24,14 +25,14 @@ async function getAllSimulations() {
   });
 }
 
-async function getSimulationById(id) {
+async function getSimulationById(userId, id) {
   const [rows] = await pool.execute(
-    "SELECT id, employee_name, data, created_at FROM simulations WHERE id = ?",
-    [id]
+    "SELECT id, employee_name, data, created_at FROM simulations WHERE id = ? AND user_id = ?",
+    [id, userId]
   );
   if (!rows[0]) return null;
   const row = rows[0];
-  const data = typeof row.data === 'string' ? JSON.parse(row.data) : row.data;
+  const data = typeof row.data === "string" ? JSON.parse(row.data) : row.data;
   return {
     id: row.id,
     employee_name: row.employee_name,
@@ -40,16 +41,16 @@ async function getSimulationById(id) {
   };
 }
 
-async function deleteSimulation(id) {
+async function deleteSimulation(userId, id) {
   const [result] = await pool.execute(
-    "DELETE FROM simulations WHERE id = ?",
-    [id]
+    "DELETE FROM simulations WHERE id = ? AND user_id = ?",
+    [id, userId]
   );
   return result.affectedRows > 0;
 }
 
-async function deleteAllSimulations() {
-  await pool.execute("DELETE FROM simulations");
+async function deleteAllSimulations(userId) {
+  await pool.execute("DELETE FROM simulations WHERE user_id = ?", [userId]);
 }
 
 module.exports = {

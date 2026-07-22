@@ -169,7 +169,7 @@
       <div class="history-panel-head">
         <div>
           <div class="panel-title"><span class="step-number">3</span> Simulations</div>
-          <p class="panel-subtitle" style="margin-bottom:0">Enregistrées localement sur cet appareil.</p>
+          <p class="panel-subtitle" style="margin-bottom:0">Enregistrées dans votre compte.</p>
         </div>
         <div class="actions">
           <button class="btn-icon-small" id="clearHistoryButton">Vider l'historique</button>
@@ -255,11 +255,8 @@
       </div>
 
       <div class="auth-field-group">
-        <div class="auth-fields-row">
-          <div class="auth-field"><label>Prénom</label><input type="text" placeholder="Ahmed"></div>
-          <div class="auth-field"><label>Nom</label><input type="text" placeholder="Ben Salah"></div>
-        </div>
-        <div class="auth-field"><label>Email</label><input type="email" placeholder="vous@exemple.com"></div>
+        <div class="auth-field"><label>Nom complet</label><input type="text" id="signUpName" placeholder="Ahmed Ben Salah"></div>
+        <div class="auth-field"><label>Email</label><input type="email" id="signUpEmail" placeholder="vous@exemple.com"></div>
         <div class="auth-field">
           <label>Mot de passe</label>
           <div class="auth-input-wrap">
@@ -270,7 +267,7 @@
           </div>
         </div>
       </div>
-      <button class="auth-submit" onclick="loginWith('register')">Créer mon compte</button>
+      <button class="auth-submit" onclick="registerWith()">Créer mon compte</button>
       <p class="auth-switch">Déjà inscrit ? <a href="#" onclick="switchAuthView('signin');return false;">Se connecter</a></p>
     </div>
   </div>

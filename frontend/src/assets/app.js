@@ -1,19 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-  var retryCount = 0;
-  var maxRetries = 50;
-
-  function waitForElements() {
-    var saveBtn = document.getElementById('saveSimulationButton');
-    if (!saveBtn || retryCount >= maxRetries) {
-      if (retryCount >= maxRetries) {
-        console.error('Could not find DOM elements after ' + maxRetries + ' retries');
-      }
-      return;
-    }
-    retryCount++;
-    initApp();
-  }
-
   function waitForElementsRetry() {
     var interval = setInterval(function () {
       var saveBtn = document.getElementById('saveSimulationButton');
@@ -28,6 +13,63 @@ document.addEventListener('DOMContentLoaded', function () {
     var byId = function (id) { return document.getElementById(id); };
     var formatDT = function (n) { return n.toLocaleString('fr-FR', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + ' DT'; };
     var API = 'http://localhost:3000/api/simulations';
+    var AUTH_API = 'http://localhost:3000/api/auth';
+
+    var currentUser = null;
+    var authToken = localStorage.getItem('paiesim_token');
+
+    function authHeaders() {
+      var headers = { 'Content-Type': 'application/json' };
+      if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+      return headers;
+    }
+
+    function authFetch(url, options) {
+      options = options || {};
+      options.headers = options.headers || {};
+      if (authToken) options.headers['Authorization'] = 'Bearer ' + authToken;
+      if (!options.headers['Content-Type'] && (options.method === 'POST' || options.method === 'PUT')) {
+        options.headers['Content-Type'] = 'application/json';
+      }
+      return fetch(url, options);
+    }
+
+    function setLoggedIn(user, token) {
+      currentUser = user;
+      authToken = token;
+      localStorage.setItem('paiesim_token', token);
+      localStorage.setItem('paiesim_user', JSON.stringify(user));
+      showAuthState();
+    }
+
+    function setLoggedOut() {
+      currentUser = null;
+      authToken = null;
+      localStorage.removeItem('paiesim_token');
+      localStorage.removeItem('paiesim_user');
+      showAuthState();
+      byId('payslipOutput').innerHTML = '<div class="payslip-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg><p>Renseignez les informations et cliquez sur "Calculer le bulletin" pour afficher le détail.</p></div>';
+      byId('payslipActions').style.display = 'none';
+      byId('saveSimulationButton').disabled = true;
+      lastComputedInput = null;
+      lastComputedResult = null;
+    }
+
+    function showAuthState() {
+      if (currentUser) {
+        byId('signInButton').style.display = 'none';
+        byId('signUpButton').style.display = 'none';
+        byId('accountPill').style.display = 'flex';
+        var initial = currentUser.name ? currentUser.name[0].toUpperCase() : 'U';
+        byId('accountAvatar').textContent = initial;
+        byId('accountAvatar').style.backgroundImage = '';
+        byId('accountName').textContent = currentUser.name;
+      } else {
+        byId('signInButton').style.display = '';
+        byId('signUpButton').style.display = '';
+        byId('accountPill').style.display = 'none';
+      }
+    }
 
     function showToast(message) {
       var toast = byId('notificationToast');
@@ -210,8 +252,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function renderHistory(searchTerm) {
+      if (!currentUser) {
+        byId('historyTableWrapper').innerHTML = '<div class="empty-state">Connectez-vous pour voir vos simulations.</div>';
+        updateHistoryStats([]);
+        return;
+      }
       searchTerm = searchTerm || '';
-      fetch(API).then(function (res) {
+      authFetch(API).then(function (res) {
         if (!res.ok) throw new Error('Not ok');
         return res.json();
       }).then(function (fullList) {
@@ -259,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function openHistoryDetail(id) {
-      fetch(API + '/' + id).then(function (res) {
+      authFetch(API + '/' + id).then(function (res) {
         if (!res.ok) throw new Error('Not ok');
         return res.json();
       }).then(function (item) {
@@ -272,7 +319,7 @@ document.addEventListener('DOMContentLoaded', function () {
     byId('detailModal').addEventListener('click', function (e) { if (e.target === e.currentTarget) e.currentTarget.classList.remove('show'); });
 
     function reuseHistoryItem(id) {
-      fetch(API + '/' + id).then(function (res) {
+      authFetch(API + '/' + id).then(function (res) {
         if (!res.ok) throw new Error('Not ok');
         return res.json();
       }).then(function (item) {
@@ -284,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function deleteHistoryItem(id) {
-      fetch(API + '/' + id, { method: 'DELETE' }).then(function () {
+      authFetch(API + '/' + id, { method: 'DELETE' }).then(function () {
         renderHistory(byId('historySearchInput').value.trim());
         showToast('Simulation supprimée.');
       }).catch(function () { showToast("Erreur lors de la suppression."); });
@@ -292,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     byId('clearHistoryButton').addEventListener('click', function () {
       if (confirm("Vider tout l'historique des simulations ?")) {
-        fetch(API, { method: 'DELETE' }).then(function () {
+        authFetch(API, { method: 'DELETE' }).then(function () {
           renderHistory();
           showToast('Historique vidé.');
         }).catch(function () { showToast("Erreur lors du vidage."); });
@@ -300,10 +347,14 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     byId('saveSimulationButton').addEventListener('click', function () {
+      if (!currentUser) {
+        showToast('Connectez-vous pour enregistrer.');
+        openAuth('signin');
+        return;
+      }
       if (!lastComputedInput || !lastComputedResult) return;
-      fetch(API, {
+      authFetch(API, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ input: lastComputedInput, result: lastComputedResult })
       }).then(function (res) {
         if (!res.ok) throw new Error('Not ok');
@@ -329,8 +380,6 @@ document.addEventListener('DOMContentLoaded', function () {
       reader.readAsDataURL(file);
     });
 
-    var isSignedIn = false;
-
     function openAuth(view) {
       switchAuthView(view);
       byId('authModal').classList.add('show');
@@ -346,31 +395,62 @@ document.addEventListener('DOMContentLoaded', function () {
       btn.style.color = input.type === 'text' ? 'var(--accent)' : '';
     }
 
-    window.loginWith = function (provider) {
-      isSignedIn = true;
-      closeAuth();
-      byId('signInButton').style.display = 'none';
-      byId('signUpButton').style.display = 'none';
-      byId('accountPill').style.display = 'flex';
+    window.loginWith = function () {
       var email = byId('signInEmail').value.trim();
-      var initial = email ? email[0].toUpperCase() : 'A';
-      if (uploadedAvatarDataUrl) {
-        byId('accountAvatar').style.backgroundImage = 'url(' + uploadedAvatarDataUrl + ')';
-        byId('accountAvatar').style.backgroundSize = 'cover';
-        byId('accountAvatar').style.backgroundPosition = 'center';
-        byId('accountAvatar').textContent = '';
-      } else {
-        byId('accountAvatar').textContent = initial;
+      var password = byId('signInPassword').value;
+
+      if (!email || !password) {
+        showToast('Veuillez remplir tous les champs.');
+        return;
       }
-      byId('accountName').textContent = email || 'Mon compte';
-      showToast('Connexion réussie.');
+
+      fetch(AUTH_API + '/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, password: password })
+      }).then(function (res) {
+        if (!res.ok) return res.json().then(function (d) { throw new Error(d.error || 'Erreur'); });
+        return res.json();
+      }).then(function (data) {
+        setLoggedIn(data.user, data.token);
+        closeAuth();
+        renderHistory();
+        showToast('Connexion réussie. Bienvenue ' + data.user.name + ' !');
+      }).catch(function (err) {
+        showToast(err.message || 'Erreur de connexion.');
+      });
+    };
+
+    window.registerWith = function () {
+      var name = byId('signUpName').value.trim();
+      var email = byId('signUpEmail').value.trim();
+      var password = byId('signUpPassword').value;
+
+      if (!name || !email || !password) {
+        showToast('Veuillez remplir tous les champs.');
+        return;
+      }
+
+      fetch(AUTH_API + '/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, email: email, password: password })
+      }).then(function (res) {
+        if (!res.ok) return res.json().then(function (d) { throw new Error(d.error || 'Erreur'); });
+        return res.json();
+      }).then(function (data) {
+        setLoggedIn(data.user, data.token);
+        closeAuth();
+        renderHistory();
+        showToast('Compte créé. Bienvenue ' + data.user.name + ' !');
+      }).catch(function (err) {
+        showToast(err.message || "Erreur d'inscription.");
+      });
     };
 
     window.logOut = function () {
-      isSignedIn = false;
-      byId('signInButton').style.display = '';
-      byId('signUpButton').style.display = '';
-      byId('accountPill').style.display = 'none';
+      setLoggedOut();
+      renderHistory();
       showToast('Vous êtes déconnecté.');
     };
 
@@ -382,7 +462,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     byId('authModal').addEventListener('click', function (e) { if (e.target === e.currentTarget) closeAuth(); });
 
-    renderHistory();
+    // On load: check for stored token
+    if (authToken) {
+      authFetch(AUTH_API + '/me').then(function (res) {
+        if (!res.ok) throw new Error('Invalid token');
+        return res.json();
+      }).then(function (user) {
+        currentUser = user;
+        showAuthState();
+        renderHistory();
+      }).catch(function () {
+        setLoggedOut();
+      });
+    } else {
+      showAuthState();
+    }
   }
 
   waitForElementsRetry();
