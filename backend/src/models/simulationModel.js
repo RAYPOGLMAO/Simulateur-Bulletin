@@ -1,47 +1,43 @@
 const pool = require("../config/database");
 
-async function createSimulation(data) {
+async function createSimulation(employeeName, data) {
   const sql = `
-    INSERT INTO simulations
-      (salary_brut, primes, indemnites, enfants_charge,
-       cnss_salarial, cmr_salarial, amg_salarial, cotisations_salariales,
-       cnss_patronal, cmr_patronal, amg_patronal, cotisations_patronales,
-       impot_revenu, salary_net)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO simulations (employee_name, data)
+    VALUES (?, CAST(? AS JSON))
   `;
-  const values = [
-    data.salary_brut,
-    data.primes,
-    data.indemnites,
-    data.enfants_charge,
-    data.cnss_salarial,
-    data.cmr_salarial,
-    data.amg_salarial,
-    data.cotisations_salariales,
-    data.cnss_patronal,
-    data.cmr_patronal,
-    data.amg_patronal,
-    data.cotisations_patronales,
-    data.impot_revenu,
-    data.salary_net,
-  ];
-  const [result] = await pool.execute(sql, values);
+  const [result] = await pool.execute(sql, [employeeName, JSON.stringify(data)]);
   return result.insertId;
 }
 
 async function getAllSimulations() {
   const [rows] = await pool.execute(
-    "SELECT id, salary_brut, primes, indemnites, enfants_charge, salary_net, created_at FROM simulations ORDER BY created_at DESC"
+    "SELECT id, employee_name, data, created_at FROM simulations ORDER BY created_at DESC"
   );
-  return rows;
+  return rows.map(row => {
+    const data = typeof row.data === 'string' ? JSON.parse(row.data) : row.data;
+    return {
+      id: row.id,
+      employee_name: row.employee_name,
+      ...data,
+      created_at: row.created_at,
+    };
+  });
 }
 
 async function getSimulationById(id) {
   const [rows] = await pool.execute(
-    "SELECT * FROM simulations WHERE id = ?",
+    "SELECT id, employee_name, data, created_at FROM simulations WHERE id = ?",
     [id]
   );
-  return rows[0] || null;
+  if (!rows[0]) return null;
+  const row = rows[0];
+  const data = typeof row.data === 'string' ? JSON.parse(row.data) : row.data;
+  return {
+    id: row.id,
+    employee_name: row.employee_name,
+    ...data,
+    created_at: row.created_at,
+  };
 }
 
 async function deleteSimulation(id) {
@@ -52,9 +48,14 @@ async function deleteSimulation(id) {
   return result.affectedRows > 0;
 }
 
+async function deleteAllSimulations() {
+  await pool.execute("DELETE FROM simulations");
+}
+
 module.exports = {
   createSimulation,
   getAllSimulations,
   getSimulationById,
   deleteSimulation,
+  deleteAllSimulations,
 };

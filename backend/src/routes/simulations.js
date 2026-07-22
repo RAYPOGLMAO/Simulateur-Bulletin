@@ -4,6 +4,7 @@ const controller = require("../controllers/simulations");
 
 router.post("/", controller.simulate);
 router.get("/", controller.getAll);
+router.delete("/", controller.clearAll);
 router.get("/:id", controller.getById);
 router.delete("/:id", controller.remove);
 

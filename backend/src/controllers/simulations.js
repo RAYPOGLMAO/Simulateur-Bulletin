@@ -1,22 +1,17 @@
-const { calculatePayroll } = require("../services/taxCalculator");
 const Simulation = require("../models/simulationModel");
 
 async function simulate(req, res) {
   try {
-    const { salary_brut, primes, indemnites, enfants_charge } = req.body;
-
-    if (!salary_brut || salary_brut <= 0) {
-      return res.status(400).json({ error: "Le salaire brut doit etre superieur a 0" });
+    const { input, result } = req.body;
+    if (!input || !result) {
+      return res.status(400).json({ error: "input et result requis" });
     }
-
-    const result = calculatePayroll({ salary_brut, primes, indemnites, enfants_charge });
-
-    const id = await Simulation.createSimulation(result);
-
-    res.status(201).json({ id, ...result });
+    const employeeName = input.employeeName || "Salarié(e)";
+    const id = await Simulation.createSimulation(employeeName, { input, result });
+    res.status(201).json({ id, employee_name: employeeName, input, result });
   } catch (err) {
     console.error("Erreur simulation:", err);
-    res.status(500).json({ error: "Erreur serveur lors de la simulation" });
+    res.status(500).json({ error: "Erreur serveur" });
   }
 }
 
@@ -56,4 +51,14 @@ async function remove(req, res) {
   }
 }
 
-module.exports = { simulate, getAll, getById, remove };
+async function clearAll(req, res) {
+  try {
+    await Simulation.deleteAllSimulations();
+    res.json({ message: "Historique vide" });
+  } catch (err) {
+    console.error("Erreur vidage:", err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+}
+
+module.exports = { simulate, getAll, getById, remove, clearAll };
