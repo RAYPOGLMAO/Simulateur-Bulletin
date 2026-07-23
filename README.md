@@ -22,7 +22,8 @@ npm run dev
 ### Frontend
 
 ```bash
+npm install -g @angular/cli
 cd frontend
 npm install
-ng serve
+ng serve --open
 ```
