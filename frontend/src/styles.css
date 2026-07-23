@@ -457,7 +457,7 @@ tbody tr:hover { background: var(--surface2); }
 @media (max-width: 980px) { .app-shell { grid-template-columns: 1fr; } .app-sidebar { display: none; } }
 
 .app-sidebar {
-  position: sticky; top: 0; height: 100vh; background: var(--surface); color: var(--text); border-right: 1px solid var(--border);
+  position: fixed; width: 12%; top: 0; height: 100vh; background: var(--surface); color: var(--text); border-right: 1px solid var(--border);
   padding: 20px 16px; display: flex; flex-direction: column; transition: background .25s var(--ease), color .25s var(--ease);
 }
 .top-app-sidebar{
@@ -545,7 +545,47 @@ html[data-theme="dark"] .sidebar-theme-toggle .icon-moon { display: block; }
 }
 
 @media print {
-  .navbar, #simulationForm, .payslip-actions, .disclaimer, .toast { display: none !important; }
-  body { padding: 0; background: #fff; color: #000; }
-  .panel { box-shadow: none; border: none; }
+  .navbar,
+  #simulationForm,
+  .payslip-actions,
+  .disclaimer,
+  .toast,
+  .app-sidebar,
+  .app-header-actions {
+    display: none !important;
+  }
+
+  body {
+    padding: 0;
+    background: #fff;
+    color: #000;
+  }
+
+  /* collapse the sidebar+main grid into a single full-width column */
+  .app-shell {
+    display: block;
+  }
+
+  .app-main {
+    width: 100%;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* the simulator grid also had 2 columns (form + report) — force single column */
+  .simulator-grid {
+    display: block;
+  }
+
+  #payslipPanel {
+    position: static;
+    top: auto;
+  }
+
+  .panel {
+    box-shadow: none;
+    border: none;
+    padding: 0;
+  }
 }
