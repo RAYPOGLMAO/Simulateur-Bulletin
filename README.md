@@ -4,7 +4,7 @@ Simulateur de Bulletin de Paie et Calcul des Taxes
 
 ## Project Structure
 
-- `frontend/` - Angular application (UI)
+- `frontend/` - Angular application (UI) / HTML5 / CSS3
 - `backend/` - Node.js/Express API server
 - `database/` - MySQL schema
 
