@@ -69,7 +69,9 @@ export class BulletinPaieComponent implements OnInit {
       date: new Date().toLocaleString('fr-FR'),
       input: this.lastComputedInput,
       result: this.lastComputedResult
+    }).subscribe({
+      next: () => this.toastService.show('Simulation enregistrée. Consultez le tableau de bord pour la synthèse.'),
+      error: () => this.toastService.show("Erreur lors de l'enregistrement.")
     });
-    this.toastService.show('Simulation enregistrée. Consultez le tableau de bord pour la synthèse.');
   }
 }

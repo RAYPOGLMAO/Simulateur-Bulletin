@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { HistoryService } from '../../core/services/history.service';
@@ -15,13 +15,17 @@ import { PayslipReportComponent } from '../../shared/components/payslip-report/p
   imports: [FormsModule, RouterLink, SidebarComponent, ThemeToggleComponent, PayslipReportComponent],
   templateUrl: './historique.component.html'
 })
-export class HistoriqueComponent {
+export class HistoriqueComponent implements OnInit {
   private historyService = inject(HistoryService);
   private budgetService = inject(BudgetService);
   private toastService = inject(ToastService);
 
   searchTerm = '';
   detailEntry: HistoryEntry | null = null;
+
+  ngOnInit(): void {
+    this.historyService.load().subscribe();
+  }
 
   get fullList(): HistoryEntry[] {
     return this.historyService.list();
@@ -64,15 +68,19 @@ export class HistoriqueComponent {
   }
 
   deleteEntry(id: string): void {
-    this.historyService.remove(id);
-    this.toastService.show('Simulation supprimée.');
+    this.historyService.remove(id).subscribe({
+      next: () => this.toastService.show('Simulation supprimée.'),
+      error: () => this.toastService.show('Erreur lors de la suppression.')
+    });
   }
 
   clearAll(): void {
     if (!this.fullList.length) return;
     if (confirm("Vider tout l'historique des simulations ?")) {
-      this.historyService.clear();
-      this.toastService.show('Historique vidé.');
+      this.historyService.clear().subscribe({
+        next: () => this.toastService.show('Historique vidé.'),
+        error: () => this.toastService.show('Erreur lors du vidage.')
+      });
     }
   }
 }

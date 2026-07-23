@@ -23,6 +23,7 @@ export class AuthComponent {
   signInPassword = '';
   signInError = '';
   signInPasswordVisible = false;
+  signInLoading = false;
 
   signUpFirstName = '';
   signUpLastName = '';
@@ -30,6 +31,7 @@ export class AuthComponent {
   signUpPassword = '';
   signUpError = '';
   signUpPasswordVisible = false;
+  signUpLoading = false;
 
   uploadedAvatarDataUrl: string | null = null;
 
@@ -65,8 +67,17 @@ export class AuthComponent {
       return;
     }
     this.signInError = '';
-    this.authService.setUser({ email, firstName: email.split('@')[0], lastName: '', avatar: null });
-    this.redirectAfterAuth();
+    this.signInLoading = true;
+    this.authService.login(email, password).subscribe({
+      next: () => {
+        this.signInLoading = false;
+        this.redirectAfterAuth();
+      },
+      error: (err) => {
+        this.signInLoading = false;
+        this.signInError = err.error?.error || 'Erreur de connexion au serveur.';
+      }
+    });
   }
 
   submitSignUp(): void {
@@ -78,13 +89,23 @@ export class AuthComponent {
       this.signUpError = 'Merci de compléter au minimum le prénom, l\'email et le mot de passe.';
       return;
     }
-    if (password.length < 8) {
-      this.signUpError = 'Le mot de passe doit contenir au moins 8 caractères.';
+    if (password.length < 6) {
+      this.signUpError = 'Le mot de passe doit contenir au moins 6 caractères.';
       return;
     }
     this.signUpError = '';
-    this.authService.setUser({ firstName, lastName, email, avatar: this.uploadedAvatarDataUrl });
-    this.redirectAfterAuth();
+    this.signUpLoading = true;
+    const name = lastName ? `${firstName} ${lastName}` : firstName;
+    this.authService.register(name, email, password).subscribe({
+      next: () => {
+        this.signUpLoading = false;
+        this.redirectAfterAuth();
+      },
+      error: (err) => {
+        this.signUpLoading = false;
+        this.signUpError = err.error?.error || 'Erreur de connexion au serveur.';
+      }
+    });
   }
 
   private redirectAfterAuth(): void {

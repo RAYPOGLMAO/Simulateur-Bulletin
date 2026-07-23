@@ -30,8 +30,8 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   private budgetService = inject(BudgetService);
   private toastService = inject(ToastService);
 
-  history: HistoryEntry[] = this.historyService.list();
-  latest: HistoryEntry | null = this.history.length ? this.history[this.history.length - 1] : null;
+  history: HistoryEntry[] = [];
+  latest: HistoryEntry | null = null;
 
   ringStats: RingStat[] = [];
   private chart?: Chart;
@@ -42,9 +42,16 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    if (!this.latest) return;
-    this.buildRingStats();
-    this.renderTrendChart();
+    this.historyService.load().subscribe({
+      next: () => {
+        this.history = this.historyService.list();
+        this.latest = this.history.length ? this.history[this.history.length - 1] : null;
+        if (!this.latest) return;
+        this.buildRingStats();
+        this.renderTrendChart();
+      },
+      error: () => {}
+    });
   }
 
   ngOnDestroy(): void {
