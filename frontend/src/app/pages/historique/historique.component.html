@@ -1,0 +1,93 @@
+<div class="app-shell">
+  <app-sidebar></app-sidebar>
+
+  <main class="app-main">
+    <div class="app-main-header">
+      <div>
+        <h1 style="font-family: 'Poppins';">Historique</h1>
+        <p>Retrouvez toutes vos simulations, recherchez, reprenez ou consultez leur détail.</p>
+      </div>
+      <div class="app-header-actions">
+        <div class="nav-search" style="max-width:300px;">
+          <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher un nom…">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <app-theme-toggle></app-theme-toggle>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <span class="stat-label">Simulations enregistrées</span>
+        <span class="stat-value">{{ statCount }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Revenu net moyen</span>
+        <span class="stat-value">{{ statAverageNet }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Reste à vivre moyen</span>
+        <span class="stat-value">{{ statAverageDisposable }}</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="history-panel-head">
+        <div>
+          <div class="panel-title" style="margin-bottom:0">Simulations</div>
+          <p class="panel-subtitle" style="margin-bottom:0">Enregistrées localement sur cet appareil.</p>
+        </div>
+        <div class="actions">
+          <button class="btn-icon-small" (click)="clearAll()">Vider l'historique</button>
+        </div>
+      </div>
+
+      @if (!fullList.length) {
+        <div class="empty-state">Aucune simulation enregistrée pour le moment.</div>
+      } @else if (!filteredList.length) {
+        <div class="empty-state">Aucun résultat pour « {{ searchTerm }} ».</div>
+      } @else {
+        <table>
+          <thead><tr><th>Date</th><th>Nom</th><th>Net</th><th>Disponible</th><th></th></tr></thead>
+          <tbody>
+            @for (item of filteredList; track item.id) {
+              <tr>
+                <td>{{ item.date }}</td>
+                <td>{{ item.input.employeeName }}</td>
+                <td class="cell-brut">{{ fmt(item.result.netSalary) }}</td>
+                <td class="cell-net">{{ fmt(item.result.disposableIncome) }}</td>
+                <td>
+                  <div class="row-actions">
+                    <button class="icon-btn" title="Voir le détail" (click)="openDetail(item)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                    <a class="icon-btn" routerLink="/bulletin-paie" [queryParams]="{ reuse: item.id }" title="Reprendre cette simulation">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 106 5.3L3 8"/></svg>
+                    </a>
+                    <button class="icon-btn danger" title="Supprimer" (click)="deleteEntry(item.id)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </main>
+</div>
+
+<div class="modal-backdrop" [class.show]="detailEntry" (click)="$event.target === $event.currentTarget && closeDetail()">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Détail de la simulation</h3>
+      <button class="modal-close" (click)="closeDetail()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    @if (detailEntry) {
+      <app-payslip-report [input]="detailEntry.input" [result]="detailEntry.result"></app-payslip-report>
+    }
+  </div>
+</div>

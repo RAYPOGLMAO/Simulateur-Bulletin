@@ -1,0 +1,37 @@
+<div class="payslip-tag">Simulation de <b>{{ input.employeeName }}</b> · {{ today }}</div>
+
+<div class="section-divider">Revenus</div>
+<div class="payslip-line"><span class="label">Salaire de base</span><span class="amount">{{ fmt(input.baseSalary) }}</span></div>
+<div class="payslip-line"><span class="label">Primes / indemnités imposables</span><span class="amount">{{ fmt(input.taxableBonuses) }}</span></div>
+<div class="payslip-line"><span class="label">Heures supplémentaires<small>{{ input.overtimeHours }} h à {{ (input.overtimeRate * 100).toFixed(0) }}%</small></span><span class="amount">{{ fmt(result.overtimeAmount) }}</span></div>
+<div class="payslip-line"><span class="label">Allocations non imposables</span><span class="amount">{{ fmt(input.allowances) }}</span></div>
+<div class="payslip-line grand-total"><span class="label">Salaire brut total</span><span class="amount">{{ fmt(result.grossTotal) }}</span></div>
+
+<div class="section-divider">Retenues sur salaire</div>
+<div class="payslip-line deduction"><span class="label">Cotisation CNSS<small>{{ input.cnssRate }}% de {{ fmt(result.cnssBase) }}</small></span><span class="amount">− {{ fmt(result.cnssContribution) }}</span></div>
+<div class="payslip-line deduction"><span class="label">Impôt sur le revenu (IRPP)<small>Barème progressif annualisé</small></span><span class="amount">− {{ fmt(result.monthlyIncomeTax) }}</span></div>
+<div class="payslip-line deduction"><span class="label">Contribution sociale de solidarité</span><span class="amount">− {{ fmt(result.solidarityContribution) }}</span></div>
+<div class="payslip-line grand-total"><span class="label">Salaire net</span><span class="amount">{{ fmt(result.netSalary) }}</span></div>
+
+<div class="section-divider">Charges fixes</div>
+<div class="payslip-line deduction"><span class="label">Assurance santé</span><span class="amount">− {{ fmt(input.healthInsurancePremium) }}</span></div>
+<div class="payslip-line deduction"><span class="label">Remboursement de crédit</span><span class="amount">− {{ fmt(input.loanRepayment) }}</span></div>
+<div class="payslip-line deduction"><span class="label">Électricité</span><span class="amount">− {{ fmt(input.electricityBill) }}</span></div>
+<div class="payslip-line deduction"><span class="label">Eau</span><span class="amount">− {{ fmt(input.waterBill) }}</span></div>
+<div class="payslip-line deduction"><span class="label">Internet</span><span class="amount">− {{ fmt(input.internetBill) }}</span></div>
+
+<div class="section-divider">Dépenses courantes</div>
+<div class="payslip-line deduction"><span class="label">Alimentation</span><span class="amount">− {{ fmt(input.groceriesExpense) }}</span></div>
+<div class="payslip-line deduction"><span class="label">Scolarité / formation</span><span class="amount">− {{ fmt(input.tuitionExpense) }}</span></div>
+<div class="payslip-line deduction"><span class="label">Loyer</span><span class="amount">− {{ fmt(input.rentExpense) }}</span></div>
+<div class="payslip-line deduction"><span class="label">Transport</span><span class="amount">− {{ fmt(input.transportationExpense) }}</span></div>
+
+<div class="section-divider">Enfants, santé &amp; loisirs</div>
+<div class="payslip-line deduction"><span class="label">École des enfants</span><span class="amount">− {{ fmt(input.kidsSchoolExpense) }}</span></div>
+<div class="payslip-line deduction"><span class="label">Médicaments<small>Remboursement CNSS {{ input.medicationReimbursementRate }}%</small></span><span class="amount">− {{ fmt(result.netMedicationCost) }}</span></div>
+<div class="payslip-line deduction"><span class="label">Vacances</span><span class="amount">− {{ fmt(input.vacationBudget) }}</span></div>
+<div class="payslip-line deduction"><span class="label">Épargne</span><span class="amount">− {{ fmt(input.savingsAmount) }}</span></div>
+
+<div class="payslip-line grand-total" [class.credit]="result.disposableIncome >= 0" [class.deduction]="result.disposableIncome < 0">
+  <span class="label">Reste à vivre disponible</span><span class="amount">{{ fmt(result.disposableIncome) }}</span>
+</div>

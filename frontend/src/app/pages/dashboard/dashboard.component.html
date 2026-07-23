@@ -1,0 +1,76 @@
+<div class="app-shell">
+  <app-sidebar></app-sidebar>
+
+  <main class="app-main">
+    <div class="app-main-header">
+      <div>
+        <h1 style="font-family: 'Poppins';">Tableau de bord</h1>
+        <p>Vue d'ensemble de votre dernière simulation budgétaire.</p>
+      </div>
+      <div class="app-header-actions">
+        <button class="btn-icon-small" style="height:38px" (click)="exportJson()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exporter (JSON)
+        </button>
+        <a class="nav-btn-solid" routerLink="/bulletin-paie">Nouvelle simulation</a>
+        <app-theme-toggle></app-theme-toggle>
+      </div>
+    </div>
+
+    @if (!latest) {
+      <div class="panel dashboard-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <p>Aucune simulation enregistrée pour le moment. Faites votre première simulation budgétaire pour voir apparaître votre tableau de bord.</p>
+        <a class="btn-primary" style="width:auto; padding:0 22px" routerLink="/bulletin-paie">Faire ma première simulation</a>
+      </div>
+    } @else {
+      <div class="dashboard-grid">
+        <div class="metric-card positive">
+          <div class="metric-label">Revenu net</div>
+          <div class="metric-value">{{ fmt(latest.result.netSalary) }}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Charges fixes</div>
+          <div class="metric-value">{{ fmt(latest.result.fixedChargesTotal) }}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Dépenses courantes</div>
+          <div class="metric-value">{{ fmt(latest.result.livingExpensesTotal + latest.result.otherAllocationsTotal) }}</div>
+        </div>
+        <div class="metric-card" [class.positive]="latest.result.disposableIncome >= 0" [class.negative]="latest.result.disposableIncome < 0">
+          <div class="metric-label">Reste à vivre</div>
+          <div class="metric-value">{{ fmt(latest.result.disposableIncome) }}</div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:18px">
+        <div class="panel-head">
+          <h2 class="panel-title" style="margin-bottom:0">Revenu net</h2>
+          <div class="legend-row">
+            <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>Revenu net</div>
+          </div>
+        </div>
+        <div class="chart-box"><canvas #trendChartCanvas></canvas></div>
+      </div>
+
+      <div class="panel" style="margin-bottom:18px">
+        <div class="panel-head"><h2 class="panel-title" style="margin-bottom:0">Poids des charges dans le revenu net</h2></div>
+        <div class="circle-stats-row">
+          @for (stat of ringStats; track stat.label) {
+            <div class="circle-stat">
+              <svg viewBox="0 0 100 100" width="104" height="104">
+                <circle cx="50" cy="50" r="42" fill="none" style="stroke:var(--surface2)" stroke-width="9"/>
+                <circle cx="50" cy="50" r="42" fill="none" [style.stroke]="stat.color" stroke-width="9"
+                  [attr.stroke-dasharray]="stat.circumference" [attr.stroke-dashoffset]="stat.offset"
+                  stroke-linecap="round" transform="rotate(-90 50 50)"/>
+                <text x="50" y="56" text-anchor="middle" font-size="19" font-weight="700" style="fill:var(--text)">{{ stat.pct }}%</text>
+              </svg>
+              <div class="circle-stat-label">{{ stat.label }}</div>
+              <div class="circle-stat-amount">{{ fmt(stat.amount) }}</div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </main>
+</div>
